@@ -1,0 +1,6 @@
+
+cm_gen_sge_code_log('fast_rcnn_sge', 'val2014 %d %d', 40504, 5000, 'debug', 1, 'spacing', 'lin', 'linstep', 100, 'pyindex', 1)
+
+cm_gen_sge_code_log('fast_rcnn_sge', 'train2014 %d %d', 82783, 5000, 'debug', 1, 'spacing', 'lin', 'linstep', 100, 'pyindex', 1)
+
+cm_gen_sge_code_log('fast_rcnn_sge', 'test2014 %d %d', 40775, 5000, 'debug', 1, 'spacing', 'lin', 'linstep', 100, 'pyindex', 1)
