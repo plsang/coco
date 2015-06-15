@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
-# --------------------------------------------------------
+# --------------- ORIGINAL VERION BY ---------------------
 # Fast R-CNN
 # Copyright (c) 2015 Microsoft
 # Licensed under The MIT License [see LICENSE for details]
 # Written by Ross Girshick
 # --------------------------------------------------------
+#
 
 """
 Demo script showing detections in sample images.
@@ -28,6 +29,7 @@ import caffe, os, sys, cv2
 import argparse
 
 import glob
+import pickle
 
 CLASSES = ('__background__',
            'aeroplane', 'bicycle', 'bird', 'boat',
@@ -43,40 +45,7 @@ NETS = {'vgg16': ('VGG16',
         'caffenet': ('CaffeNet',
                      'caffenet_fast_rcnn_iter_40000.caffemodel')}
 
-
-def vis_detections(im, class_name, dets, ax, thresh=0.5):
-    """Draw detected bounding boxes."""
-    inds = np.where(dets[:, -1] >= thresh)[0]
-    if len(inds) == 0:
-        return
-
-    im = im[:, :, (2, 1, 0)]
-    #fig, ax = plt.subplots(figsize=(12, 12))
-    ax.imshow(im, aspect='equal')
-    for i in inds:
-        bbox = dets[i, :4]
-        score = dets[i, -1]
-
-        ax.add_patch(
-            plt.Rectangle((bbox[0], bbox[1]),
-                          bbox[2] - bbox[0],
-                          bbox[3] - bbox[1], fill=False,
-                          edgecolor='red', linewidth=3.5)
-            )
-        ax.text(bbox[0], bbox[1] - 2,
-                '{:s} {:.3f}'.format(class_name, score),
-                bbox=dict(facecolor='blue', alpha=0.5),
-                fontsize=14, color='white')
-
-    ax.set_title(('{} detections with '
-                  'p({} | box) >= {:.1f}').format(class_name, class_name,
-                                                  thresh),
-                  fontsize=14)
-    plt.axis('off')
-    plt.tight_layout()
-    plt.draw()
-
-def detect(net, image_set, image_name, ax, output_file):
+def detect(net, image_set, image_name, output_file):
     """Detect object classes in an image using pre-computed object proposals."""
     # Load pre-computed Selected Search object proposals
     box_file = os.path.join(coco_root, 'boxes', image_set, image_name + '.mat')
@@ -97,29 +66,11 @@ def detect(net, image_set, image_name, ax, output_file):
     timer.toc()
     print ('Detection took {:.3f}s for '
            '{:d} object proposals').format(timer.total_time, boxes.shape[0])
-
-    # Visualize detections for each class
-    CONF_THRESH = 0.1
-    NMS_THRESH = 0.1
-    for cls in CLASSES:
-        if cls == '__background__':
-            continue
-        try: 	
-            cls_ind = CLASSES.index(cls)
-            cls_boxes = boxes[:, 4*cls_ind:4*(cls_ind + 1)]
-            cls_scores = scores[:, cls_ind]
-            dets = np.hstack((cls_boxes,
-                          cls_scores[:, np.newaxis])).astype(np.float32)
-            keep = nms(dets, NMS_THRESH)
-            dets = dets[keep, :]
-            print 'All {} detections with p({} | box) >= {:.1f}'.format(cls, cls,
-                                                                    CONF_THRESH)
-            vis_detections(im, cls, dets, ax, thresh=CONF_THRESH)
-        except:
-            pass
-			
-    #output_file = os.path.join(coco_root, 'fast_rcnn_boxes', image_set, image_name + '.jpg')
-    plt.savefig(output_file)
+	
+    np.savez(output_file, scores=scores, boxes=boxes)
+        
+    #with open(output_file, 'w') as f:
+    #    pickle.dump([scores, boxes], f)
 	
 def parse_args():
     """Parse input arguments."""
@@ -165,10 +116,6 @@ if __name__ == '__main__':
     
     coco_root = '/net/per610a/export/das11f/plsang/coco2014'
 	
-    fig = plt.figure( figsize=(12, 12), dpi=80)
-    ax = fig.add_subplot(111)
-    #fig, ax = plt.subplots(figsize=(12, 12))
-	
     #load image list
     img_dir = os.path.join(coco_root, 'images', args.image_set)
     imglist = glob.glob(img_dir + '/*.jpg')
@@ -178,10 +125,13 @@ if __name__ == '__main__':
     
     for ii in range(start_img, end_img):
         img_name = os.path.splitext(os.path.basename(imglist[ii]))[0]
-        output_file = os.path.join(coco_root, 'fast_rcnn_boxes', args.image_set, img_name + '.jpg')
+        output_file = os.path.join(coco_root, 'fast_rcnn_boxes', args.image_set, img_name + '.npz')
         if os.path.exists(output_file):
             continue
+        output_dir = os.path.dirname(output_file)
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
             
         print '----', ii, 'Detecting objects in image: ' + img_name
-        detect(net, args.image_set, img_name, ax, output_file)
+        detect(net, args.image_set, img_name, output_file)
 	
