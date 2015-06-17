@@ -48,7 +48,9 @@ NETS = {'vgg16': ('VGG16',
 def detect(net, image_set, image_name, output_file):
     """Detect object classes in an image using pre-computed object proposals."""
     # Load pre-computed Selected Search object proposals
-    box_file = os.path.join(coco_root, 'boxes', image_set, image_name + '.mat')
+    #box_file = os.path.join(coco_root, 'boxes', image_set, image_name + '.mat')
+    box_file = os.path.join(coco_root, 'boxes_full', image_set, image_name + '.mat')
+    
     if not os.path.exists(box_file):
         print 'File does not exist', box_file
         return
@@ -125,7 +127,8 @@ if __name__ == '__main__':
     
     for ii in range(start_img, end_img):
         img_name = os.path.splitext(os.path.basename(imglist[ii]))[0]
-        output_file = os.path.join(coco_root, 'fast_rcnn_boxes', args.image_set, img_name + '.npz')
+        #output_file = os.path.join(coco_root, 'fast_rcnn_boxes', args.image_set, img_name + '.npz')
+        output_file = os.path.join(coco_root, 'fast_rcnn_boxes_full', args.image_set, img_name + '.npz')
         if os.path.exists(output_file):
             continue
         output_dir = os.path.dirname(output_file)
