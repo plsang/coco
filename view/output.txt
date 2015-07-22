@@ -1,0 +1,24 @@
+
+
+Loaded network /net/per920a/export/das14a/satoh-lab/plsang/fast-rcnn/data/fast_rcnn_models/vgg16_fast_rcnn_iter_40000.caffemodel
+Detection took 22.304s for 5965 object proposals
+All aeroplane detections with p(aeroplane | box) >= 0.2
+All bicycle detections with p(bicycle | box) >= 0.2
+All bird detections with p(bird | box) >= 0.2
+All boat detections with p(boat | box) >= 0.2
+All bottle detections with p(bottle | box) >= 0.2
+All bus detections with p(bus | box) >= 0.2
+All car detections with p(car | box) >= 0.2
+All cat detections with p(cat | box) >= 0.2
+All chair detections with p(chair | box) >= 0.2
+All cow detections with p(cow | box) >= 0.2
+All diningtable detections with p(diningtable | box) >= 0.2
+All dog detections with p(dog | box) >= 0.2
+All horse detections with p(horse | box) >= 0.2
+All motorbike detections with p(motorbike | box) >= 0.2
+All person detections with p(person | box) >= 0.2
+All pottedplant detections with p(pottedplant | box) >= 0.2
+All sheep detections with p(sheep | box) >= 0.2
+All sofa detections with p(sofa | box) >= 0.2
+All train detections with p(train | box) >= 0.2
+All tvmonitor detections with p(tvmonitor | box) >= 0.2
