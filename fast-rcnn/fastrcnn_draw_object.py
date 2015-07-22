@@ -80,10 +80,14 @@ def vis_detections(im, class_name, dets, ax, thresh=0.5):
     plt.draw()
 
     
-def draw (net, image_set, image_name, output_file):
+def draw (net, image_set, image_name, output_file, ssmode):
     """Detect object classes in an image using pre-computed object proposals."""
     # Load pre-computed Selected Search object proposals
-    box_file = os.path.join(coco_root, 'fast_rcnn_boxes', image_set, image_name + '.npz')
+    if ssmode == 'full':
+        box_file = os.path.join(coco_root, 'fast_rcnn_boxes_full', image_set, image_name + '.npz')
+    else:
+        box_file = os.path.join(coco_root, 'fast_rcnn_boxes', image_set, image_name + '.npz')
+        
     if not os.path.exists(box_file):
         print 'File does not exist', box_file
         return
@@ -133,6 +137,10 @@ def parse_args():
 
     parser.add_argument('--set', dest='image_set', help='Image set')
     
+    parser.add_argument('--img', dest='image_name', help='Image name')
+    
+    parser.add_argument('--ssmode', dest='ssmode', help='Selective Search mode', default='fast')
+    
     parser.add_argument('--s', dest='start_img', help='start image')
     
     parser.add_argument('--e', dest='end_img', help='end image')
@@ -158,28 +166,51 @@ if __name__ == '__main__':
     else:
         caffe.set_mode_gpu()
         caffe.set_device(args.gpu_id)
+        
     net = caffe.Net(prototxt, caffemodel, caffe.TEST)
 	
     print '\n\nLoaded network {:s}'.format(caffemodel)
     
     coco_root = '/net/per610a/export/das11f/plsang/coco2014'
 	
-    #load image list
-    img_dir = os.path.join(coco_root, 'images', args.image_set)
-    imglist = glob.glob(img_dir + '/*.jpg')
-    
-    start_img = int(args.start_img)
-    end_img = int(args.end_img)
-    
-    for ii in range(start_img, end_img):
-        img_name = os.path.splitext(os.path.basename(imglist[ii]))[0]
-        output_file = os.path.join(coco_root, 'fast_rcnn_boxes', args.image_set, img_name + '.jpg')
+    if args.image_name:
+        if args.ssmode == 'full':
+            output_file = os.path.join(coco_root, 'fast_rcnn_draw_full', args.image_set, args.image_name + '.jpg')
+        else:
+            output_file = os.path.join(coco_root, 'fast_rcnn_draw', args.image_set, args.image_name + '.jpg')
+            
         if os.path.exists(output_file):
-            continue
+            exit()
+            
         output_dir = os.path.dirname(output_file)
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
             
-        print '----', ii, 'Detecting objects in image: ' + img_name
-        draw(net, args.image_set, img_name, output_file)
+        print '----Detecting objects in image: ' + args.image_name
+        draw(net, args.image_set, args.image_name, output_file, args.ssmode)
+        
+    else:
+        #load image list
+        img_dir = os.path.join(coco_root, 'images', args.image_set)
+        imglist = glob.glob(img_dir + '/*.jpg')
+        
+        
+        start_img = int(args.start_img)
+        end_img = int(args.end_img)
+        
+        for ii in range(start_img, end_img):
+            img_name = os.path.splitext(os.path.basename(imglist[ii]))[0]
+            if args.ssmode == 'full':
+                output_file = os.path.join(coco_root, 'fast_rcnn_draw_full', args.image_set, img_name + '.jpg')
+            else:
+                output_file = os.path.join(coco_root, 'fast_rcnn_draw', args.image_set, img_name + '.jpg')
+                
+            if os.path.exists(output_file):
+                continue
+            output_dir = os.path.dirname(output_file)
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir)
+                
+            print '----', ii, 'Detecting objects in image: ' + img_name
+            draw(net, args.image_set, img_name, output_file, args.ssmode)
 	
